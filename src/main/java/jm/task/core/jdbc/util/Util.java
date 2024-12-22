@@ -1,15 +1,20 @@
 package jm.task.core.jdbc.util;
 
+import jm.task.core.jdbc.model.User;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
+
 
 public class Util {
     // реализуйте настройку соеденения с БД
     private final static String url = "jdbc:mysql://localhost:3306/mysql";
     private final static String user = "root";
     private final static String password = "ingadfg842655@";
+    private static SessionFactory sessionFactory;
 
     public static Connection getConnection() {
         Connection conn = null;
@@ -22,14 +27,23 @@ public class Util {
         return conn;
     }
 
-//    public static void createDatabase() {
-//        String sql = "CREATE DATABASE IF NOT EXISTS users";
-//        try (Connection conn = DriverManager.getConnection(url, user, password);
-//             Statement statement = conn.createStatement()) {
-//            statement.execute(sql);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            try {
+                Configuration configuration = new Configuration();
+                configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+                configuration.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
+                configuration.setProperty("hibernate.connection.url", url);
+                configuration.setProperty("hibernate.connection.username", user);
+                configuration.setProperty("hibernate.connection.password", password);
+                configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+                configuration.addAnnotatedClass(User.class);
+                sessionFactory = configuration.buildSessionFactory();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return sessionFactory;
+    }
 
 }
